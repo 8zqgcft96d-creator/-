@@ -1,198 +1,152 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>心理測驗 | 雷達圖分析</title>
+<meta charset="UTF-8">
+<title>四型心理測驗</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    body {
-        font-family: Arial;
-        padding: 20px;
-        max-width: 600px;
-        margin: auto;
-        line-height: 1.7;
-    }
-    #question-box, #result {
-        margin-top: 30px;
-        border: 1px solid #ddd;
-        padding: 20px;
-        border-radius: 10px;
-    }
-    .option-btn {
-        display: block;
-        width: 100%;
-        margin: 10px 0;
-        padding: 10px;
-        border: none;
-        background: #eee;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-    .option-btn:hover {
-        background: #ccc;
-    }
+body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; line-height: 1.7; }
+.option { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; background: #eee; border: none; cursor: pointer; }
+.option:hover { background: #ccc; }
+#result { display: none; margin-top: 30px; }
+.card { background: #f8f8f8; padding: 20px; border-radius: 10px; margin-top: 20px; }
 </style>
 </head>
 
 <body>
 
-<h2>五題心理測驗</h2>
-<p>請依照你的直覺回答，測驗結束後會顯示你的雷達圖分析。</p>
-
+<h2>四型心理測驗</h2>
 <div id="question-box">
-    <h3 id="question-text"></h3>
+    <h3 id="question"></h3>
     <div id="options"></div>
 </div>
 
-<div id="result" style="display:none;">
-    <h2>測驗結果</h2>
-    <canvas id="radarChart"></canvas>
-    <div id="analysis"></div>
+<div id="result">
+    <h2>你的結果</h2>
+    <canvas id="radar"></canvas>
+    <div id="finalType" class="card"></div>
+    <div id="analysis" class="card"></div>
 </div>
 
 <script>
-// -------------------------
-// 題目資料
-// -------------------------
 const questions = [
     {
-        text: "1. 你遇到困難時會怎麼做？",
-        trait: "堅韌度",
+        text: "1. 當你遇到一個新的挑戰時，你的第一反應是：",
         options: [
-            { text: "冷靜分析後再行動", score: 5 },
-            { text: "先拖著，看狀況再說", score: 3 },
-            { text: "容易慌張，不知道怎麼辦", score: 1 }
+            { text: "（A） 馬上跳進去、先試看看", type: "馬" },
+            { text: "（B） 先觀察環境、研究方式", type: "男孩" },
+            { text: "（C） 有點猶豫、怕搞砸、先做部分準備", type: "狐狸" },
+            { text: "（D） 幫助他人，在背後支撐或配合", type: "鼴鼠" }
         ]
     },
     {
-        text: "2. 你在團體中通常的角色？",
-        trait: "社交度",
+        text: "2. 在朋友情緒低落時，你通常會：",
         options: [
-            { text: "主動聊天、帶動氣氛", score: 5 },
-            { text: "有人找我才會聊天", score: 3 },
-            { text: "通常安靜、不太融入", score: 1 }
+            { text: "（A） 鼓勵他們「快起來、一起去做點什麼」", type: "馬" },
+            { text: "（B） 安靜陪伴、傾聽他們説出來", type: "男孩" },
+            { text: "（C） 不太確定怎麼幫比較好，會退縮", type: "狐狸" },
+            { text: "（D） 主動照顧他們、給支持", type: "鼴鼠" }
         ]
     },
     {
-        text: "3. 遇到新挑戰，你的感受？",
-        trait: "自信度",
+        text: "3. 在思考人生方向時，你偏好：",
         options: [
-            { text: "願意嘗試，相信能做到", score: 5 },
-            { text: "猶豫一下才開始", score: 3 },
-            { text: "很容易懷疑自己", score: 1 }
+            { text: "（A） 設定目標、立刻實踐", type: "馬" },
+            { text: "（B） 深入思考、分析可能性", type: "男孩" },
+            { text: "（C） 小心翼翼、怕錯、慢慢走", type: "狐狸" },
+            { text: "（D） 與他人分享、互相支持", type: "鼴鼠" }
         ]
     },
     {
-        text: "4. 你覺得自己面對壓力的能力？",
-        trait: "抗壓性",
+        text: "4. 面對失敗，你最可能的反應是：",
         options: [
-            { text: "通常都能處理好", score: 5 },
-            { text: "時好時壞", score: 3 },
-            { text: "常常覺得快撐不住", score: 1 }
+            { text: "（A） 立刻反彈、再戰一次", type: "馬" },
+            { text: "（B） 自我反省、思考教訓", type: "男孩" },
+            { text: "（C） 沮喪、退縮、怕再犯錯", type: "狐狸" },
+            { text: "（D） 尋求人際支持、一起面對", type: "鼴鼠" }
         ]
     },
     {
-        text: "5. 你處理情緒的方式？",
-        trait: "情緒調節",
+        text: "5. 你最看重的特質是：",
         options: [
-            { text: "能自己調適", score: 5 },
-            { text: "需要跟朋友聊一聊", score: 3 },
-            { text: "容易情緒卡住好幾天", score: 1 }
+            { text: "（A） 冒險精神／行動力", type: "馬" },
+            { text: "（B） 思考深度／內在探索", type: "男孩" },
+            { text: "（C） 謹慎／安全感", type: "狐狸" },
+            { text: "（D） 溫暖／支持他人", type: "鼴鼠" }
         ]
     }
 ];
 
-let current = 0;
-let scores = {
-    堅韌度: 0,
-    社交度: 0,
-    自信度: 0,
-    抗壓性: 0,
-    情緒調節: 0
-};
+let index = 0;
+let score = { 馬: 0, 男孩: 0, 狐狸: 0, 鼴鼠: 0 };
 
-// -------------------------
-// 顯示題目
-// -------------------------
-function loadQuestion() {
-    let q = questions[current];
-    document.getElementById("question-text").innerText = q.text;
-
-    let optionHTML = "";
-    q.options.forEach((opt, index) => {
-        optionHTML += `
-            <button class="option-btn" onclick="answer(${opt.score}, '${q.trait}')">
-                ${opt.text}
-            </button>
-        `;
-    });
-    document.getElementById("options").innerHTML = optionHTML;
+function loadQ() {
+    const q = questions[index];
+    document.getElementById("question").innerText = q.text;
+    document.getElementById("options").innerHTML = q.options
+        .map(o => `<button class="option" onclick="choose('${o.type}')">${o.text}</button>`)
+        .join("");
 }
 
-loadQuestion();
+loadQ();
 
-// -------------------------
-// 回答題目
-// -------------------------
-function answer(score, trait) {
-    scores[trait] += score;
-    current++;
-
-    if (current < questions.length) {
-        loadQuestion();
-    } else {
-        showResult();
-    }
+function choose(type) {
+    score[type]++;
+    index++;
+    if (index < questions.length) loadQ();
+    else finish();
 }
 
-// -------------------------
-// 顯示結果 + 雷達圖
-// -------------------------
-function showResult() {
+function finish() {
     document.getElementById("question-box").style.display = "none";
     document.getElementById("result").style.display = "block";
 
-    let labels = Object.keys(scores);
-    let data = Object.values(scores);
-
-    // Radar Chart
-    new Chart(document.getElementById("radarChart"), {
+    // 雷達圖
+    new Chart(document.getElementById("radar"), {
         type: 'radar',
         data: {
-            labels: labels,
+            labels: ["馬", "男孩", "狐狸", "鼴鼠"],
             datasets: [{
-                label: "你的心理特質雷達圖",
-                data: data,
+                label: "你的特質分佈",
+                data: [score.馬, score.男孩, score.狐狸, score.鼴鼠],
+                borderWidth: 2,
                 fill: true
             }]
         }
     });
 
-    // -------------------------
-    // 文字分析
-    // -------------------------
-    let analysisText = "";
+    // 主要類型判定
+    let entries = Object.entries(score);
+    entries.sort((a,b)=>b[1]-a[1]);
+    let top = entries.filter(e => e[1] === entries[0][1]).map(e=>e[0]);
 
-    analysisText += `<h3>你的心理特質解析</h3>`;
+    document.getElementById("finalType").innerHTML = `
+        <h3>你的類型：${top.join("＋")}</h3>
+    `;
 
-    for (let trait in scores) {
-        let s = scores[trait];
+    // 完整解析（你原本提供的）
+    const detail = {
+        男孩: `你是【男孩型】：
+關於自己，你還在學著怎麼相信。
+你有很強的感受力，對世界充滿好奇，也對自己充滿問號…（完整原文放在這裏）`,
 
-        if (s >= 20) {
-            analysisText += `<p><b>${trait}：</b>非常突出！代表你在這方面擁有強大的能力與穩定度。</p>`;
-        } else if (s >= 15) {
-            analysisText += `<p><b>${trait}：</b>中上程度，你通常可以應付大部分情況。</p>`;
-        } else {
-            analysisText += `<p><b>${trait}：</b>稍弱一些，代表你可能容易在這方面感到不安或壓力。</p>`;
-        }
-    }
+        鼴鼠: `你是【鼴鼠型】：
+你的溫柔，是世界很需要的安慰。
+你很重視「舒服感」——食物、氣氛、陪伴…（完整原文放在這裏）`,
 
-    document.getElementById("analysis").innerHTML = analysisText;
+        狐狸: `你是【狐狸型】：
+你看得很清楚，只是習慣把心收好。
+你敏銳、細心，對人的真心假意有直覺…（完整原文放在這裏）`,
+
+        馬: `你是【馬型】：
+你習慣當那個「載大家走過去」的人。
+你很習慣扛責任、撐住場面…（完整原文放在這裏）`
+    };
+
+    document.getElementById("analysis").innerHTML =
+        top.map(t => `<h3>${t}型解析</h3><p>${detail[t]}</p>`).join("");
 }
 </script>
-
 </body>
 </html>
