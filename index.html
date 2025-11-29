@@ -1,32 +1,198 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>心理測驗｜你是哪一種角色？</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>心理測驗 | 雷達圖分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        font-family: Arial;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        line-height: 1.7;
+    }
+    #question-box, #result {
+        margin-top: 30px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .option-btn {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        border: none;
+        background: #eee;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .option-btn:hover {
+        background: #ccc;
+    }
+</style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>心理測驗：你是哪一種角色？</h1>
 
-        <!-- 問題區 -->
-        <div id="questionContainer"></div>
+<h2>五題心理測驗</h2>
+<p>請依照你的直覺回答，測驗結束後會顯示你的雷達圖分析。</p>
 
-        <button id="nextBtn" onclick="nextQuestion()">下一題</button>
+<div id="question-box">
+    <h3 id="question-text"></h3>
+    <div id="options"></div>
+</div>
 
-        <!-- 結果 -->
-        <div id="resultSection" class="hidden">
-            <h2>你的測驗結果</h2>
-            <canvas id="radarChart"></canvas>
-            <div id="resultText"></div>
-        </div>
-    </div>
+<div id="result" style="display:none;">
+    <h2>測驗結果</h2>
+    <canvas id="radarChart"></canvas>
+    <div id="analysis"></div>
+</div>
 
-    <script src="script.js"></script>
+<script>
+// -------------------------
+// 題目資料
+// -------------------------
+const questions = [
+    {
+        text: "1. 你遇到困難時會怎麼做？",
+        trait: "堅韌度",
+        options: [
+            { text: "冷靜分析後再行動", score: 5 },
+            { text: "先拖著，看狀況再說", score: 3 },
+            { text: "容易慌張，不知道怎麼辦", score: 1 }
+        ]
+    },
+    {
+        text: "2. 你在團體中通常的角色？",
+        trait: "社交度",
+        options: [
+            { text: "主動聊天、帶動氣氛", score: 5 },
+            { text: "有人找我才會聊天", score: 3 },
+            { text: "通常安靜、不太融入", score: 1 }
+        ]
+    },
+    {
+        text: "3. 遇到新挑戰，你的感受？",
+        trait: "自信度",
+        options: [
+            { text: "願意嘗試，相信能做到", score: 5 },
+            { text: "猶豫一下才開始", score: 3 },
+            { text: "很容易懷疑自己", score: 1 }
+        ]
+    },
+    {
+        text: "4. 你覺得自己面對壓力的能力？",
+        trait: "抗壓性",
+        options: [
+            { text: "通常都能處理好", score: 5 },
+            { text: "時好時壞", score: 3 },
+            { text: "常常覺得快撐不住", score: 1 }
+        ]
+    },
+    {
+        text: "5. 你處理情緒的方式？",
+        trait: "情緒調節",
+        options: [
+            { text: "能自己調適", score: 5 },
+            { text: "需要跟朋友聊一聊", score: 3 },
+            { text: "容易情緒卡住好幾天", score: 1 }
+        ]
+    }
+];
+
+let current = 0;
+let scores = {
+    堅韌度: 0,
+    社交度: 0,
+    自信度: 0,
+    抗壓性: 0,
+    情緒調節: 0
+};
+
+// -------------------------
+// 顯示題目
+// -------------------------
+function loadQuestion() {
+    let q = questions[current];
+    document.getElementById("question-text").innerText = q.text;
+
+    let optionHTML = "";
+    q.options.forEach((opt, index) => {
+        optionHTML += `
+            <button class="option-btn" onclick="answer(${opt.score}, '${q.trait}')">
+                ${opt.text}
+            </button>
+        `;
+    });
+    document.getElementById("options").innerHTML = optionHTML;
+}
+
+loadQuestion();
+
+// -------------------------
+// 回答題目
+// -------------------------
+function answer(score, trait) {
+    scores[trait] += score;
+    current++;
+
+    if (current < questions.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+// -------------------------
+// 顯示結果 + 雷達圖
+// -------------------------
+function showResult() {
+    document.getElementById("question-box").style.display = "none";
+    document.getElementById("result").style.display = "block";
+
+    let labels = Object.keys(scores);
+    let data = Object.values(scores);
+
+    // Radar Chart
+    new Chart(document.getElementById("radarChart"), {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "你的心理特質雷達圖",
+                data: data,
+                fill: true
+            }]
+        }
+    });
+
+    // -------------------------
+    // 文字分析
+    // -------------------------
+    let analysisText = "";
+
+    analysisText += `<h3>你的心理特質解析</h3>`;
+
+    for (let trait in scores) {
+        let s = scores[trait];
+
+        if (s >= 20) {
+            analysisText += `<p><b>${trait}：</b>非常突出！代表你在這方面擁有強大的能力與穩定度。</p>`;
+        } else if (s >= 15) {
+            analysisText += `<p><b>${trait}：</b>中上程度，你通常可以應付大部分情況。</p>`;
+        } else {
+            analysisText += `<p><b>${trait}：</b>稍弱一些，代表你可能容易在這方面感到不安或壓力。</p>`;
+        }
+    }
+
+    document.getElementById("analysis").innerHTML = analysisText;
+}
+</script>
+
 </body>
 </html>
-
