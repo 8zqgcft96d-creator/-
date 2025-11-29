@@ -6,7 +6,6 @@
     <title>心理測驗｜你是哪一種角色？</title>
     <link rel="stylesheet" href="style.css">
 
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -14,58 +13,15 @@
     <div class="container">
         <h1>心理測驗：你是哪一種角色？</h1>
 
-        <form id="quizForm">
-            <!-- 1 -->
-            <div class="question">
-                <p>1. 當你遇到一個新的挑戰時，你的第一反應是？</p>
-                <label><input type="radio" name="q1" value="A"> A．馬上跳進去、先試看看</label>
-                <label><input type="radio" name="q1" value="B"> B．觀察環境、研究方式</label>
-                <label><input type="radio" name="q1" value="C"> C．猶豫怕錯、先做準備</label>
-                <label><input type="radio" name="q1" value="D"> D．先支援他人、在背後協助</label>
-            </div>
+        <!-- 問題區 -->
+        <div id="questionContainer"></div>
 
-            <!-- 2 -->
-            <div class="question">
-                <p>2. 當朋友低落時，你通常會？</p>
-                <label><input type="radio" name="q2" value="A"> A．帶他做點事、活絡起來</label>
-                <label><input type="radio" name="q2" value="B"> B．安靜陪伴、傾聽</label>
-                <label><input type="radio" name="q2" value="C"> C．不知道怎麼幫、有點退縮</label>
-                <label><input type="radio" name="q2" value="D"> D．主動照顧、提供支持</label>
-            </div>
+        <button id="nextBtn" onclick="nextQuestion()">下一題</button>
 
-            <!-- 3 -->
-            <div class="question">
-                <p>3. 在思考人生方向時，你會？</p>
-                <label><input type="radio" name="q3" value="A"> A．立刻設定目標、行動</label>
-                <label><input type="radio" name="q3" value="B"> B．深度思考、寫筆記</label>
-                <label><input type="radio" name="q3" value="C"> C．小心翼翼、慢慢走</label>
-                <label><input type="radio" name="q3" value="D"> D．和他人一起討論前進</label>
-            </div>
-
-            <!-- 4 -->
-            <div class="question">
-                <p>4. 面對挫折你會？</p>
-                <label><input type="radio" name="q4" value="A"> A．立刻反彈、再戰一次</label>
-                <label><input type="radio" name="q4" value="B"> B．反省、思考教訓</label>
-                <label><input type="radio" name="q4" value="C"> C．感到沮喪、害怕再犯錯</label>
-                <label><input type="radio" name="q4" value="D"> D．尋求/提供人際支持</label>
-            </div>
-
-            <!-- 5 -->
-            <div class="question">
-                <p>5. 你最看重的特質是？</p>
-                <label><input type="radio" name="q5" value="A"> A．冒險精神/行動力</label>
-                <label><input type="radio" name="q5" value="B"> B．思考深度/內在探索</label>
-                <label><input type="radio" name="q5" value="C"> C．謹慎/安全感</label>
-                <label><input type="radio" name="q5" value="D"> D．溫暖/支持他人</label>
-            </div>
-
-            <button type="button" onclick="calculateResult()">提交答案</button>
-        </form>
-
+        <!-- 結果 -->
         <div id="resultSection" class="hidden">
             <h2>你的測驗結果</h2>
-            <canvas id="radarChart" width="300" height="300"></canvas>
+            <canvas id="radarChart"></canvas>
             <div id="resultText"></div>
         </div>
     </div>
@@ -73,3 +29,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
