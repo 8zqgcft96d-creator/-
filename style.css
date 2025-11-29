@@ -1,0 +1,51 @@
+body {
+    font-family: "Microsoft JhengHei", sans-serif;
+    background: #fff6ec;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 650px;
+    background: white;
+    margin: 30px auto;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #d8d8d8;
+}
+
+h1 {
+    text-align: center;
+    color: #444;
+}
+
+.question {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin: 6px 0;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #ff9c5f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none;
+}
+
+#resultText {
+    margin-top: 20px;
+    font-size: 16px;
+    white-space: pre-line;
+}
