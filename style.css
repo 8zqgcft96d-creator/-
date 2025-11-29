@@ -1,54 +1,5 @@
-body {
-    font-family: "Microsoft JhengHei", sans-serif;
-    background: #fff6ec;
-    margin: 0;
-    padding: 0;
-}
-
-.container {
-    width: 90%;
-    max-width: 650px;
-    background: white;
-    margin: 30px auto;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 0 10px #d8d8d8;
-}
-
-h1 {
-    text-align: center;
-    color: #444;
-}
-
-.question {
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
-label {
-    display: block;
-    padding: 6px 0;
-    cursor: pointer;
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    background: #ff9c5f;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.hidden {
-    display: none;
-}
-
-#resultText {
-    margin-top: 20px;
-    font-size: 16px;
-    white-space: pre-line;
-}
-
+body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; line-height: 1.7; }
+.option { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; background: #eee; border: none; cursor: pointer; }
+.option:hover { background: #ccc; }
+#result { display: none; margin-top: 30px; }
+.card { background: #f8f8f8; padding: 20px; border-radius: 10px; margin-top: 20px; white-space: pre-line; }
