@@ -99,13 +99,6 @@
       }
     ];
 
-    const images = {
-      A: "https://placekitten.com/300/300", // 馬型(示意，之後可替換成你的插畫)
-      B: "https://placebear.com/300/300", // 狐狸型
-      C: "https://placekitten.com/301/301", // 男孩型
-      D: "https://placebear.com/301/301"  // 鼴鼠型
-    };
-
     const results = {
       A: "你是【馬型】：你習慣扛責任、給人安全感，但別忘記你也需要被照顧。",
       B: "你是【狐狸型】：敏銳細心但收得太緊，試著多給世界一些機會。",
@@ -173,35 +166,13 @@
       document.getElementById("prevBtn").style.display = "none";
       document.getElementById("nextBtn").style.display = "none";
 
-      document.getElementById("result").innerHTML = `
-        <img src="${images[final]}" style="width:180px;border-radius:15px;margin-bottom:15px;display:block;margin:auto;" />
-        ` + `<h3>${results[final]}</h3>`;
+      document.getElementById("result").innerHTML = `<h3>${results[final]}</h3>`;
 
       document.getElementById("progressBar").style.width = "100%";
     }
 
     renderQuestion();
   </script>
-  <button id="downloadBtn" style="display:none;margin-top:20px;" onclick="downloadResult()">下載結果圖片</button>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script>
-    function downloadResult() {
-      const resultDiv = document.getElementById("result");
-      html2canvas(resultDiv).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "心理測驗結果.png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-
-    // 在 finishTest() 結尾加入：顯示下載按鈕
-    const originalFinish = finishTest;
-    finishTest = function(){
-      originalFinish();
-      document.getElementById("downloadBtn").style.display = "block";
-    }
-  </script>
 </body>
 </html>
+
