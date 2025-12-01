@@ -74,9 +74,8 @@
   <button id="prevBtn" onclick="prevQuestion()" disabled>上一題</button>
   <button id="nextBtn" onclick="nextQuestion()">下一題</button>
   <div id="result"></div>
-  <canvas id="radarChart" style="max-width:400px;margin:auto;display:none;"></canvas>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></scrip
+  <script>
     const questions = [
       {
         q: "1. 當你遇到一個新的挑戰/任務時，你的第一反應是：",
@@ -146,22 +145,7 @@
       const selected = document.querySelector(`input[name=q${current}]:checked`);
       if (!selected) return alert("請先選擇一個選項！");
 
-      answers[curfinishTest(){
-      originalFinish();
-      document.getElementById("downloadBtn").style.display = "block";
-
-      // 取得結果統計
-      const count = {A:0,B:0,C:0,D:0};
-      answers.forEach(a => count[a]++);
-
-      // 顯示雷達圖
-      const ctx = document.getElementById('radarChart');
-      ctx.style.display = 'block';
-
-      new Chart(ctx, {
-        type: 'radar',
-        data: {
-          labels: ['行動力(馬型)', '思考深度(狐狸型)', '敏感度(男孩型)', '溫柔支持cted.value;
+      answers[current] = selected.value;
 
       if (current < questions.length - 1) {
         current++;
@@ -198,26 +182,6 @@
 
     renderQuestion();
   </script>
-  <button id="downloadBtn" style="display:none;margin-top:20px;" onclick="downloadResult()">下載結果圖片</button>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script>
-    function downloadResult() {
-      const resultDiv = document.getElementById("result");
-      html2canvas(resultDiv).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "心理測驗結果.png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-
-    // 在 finishTest() 結尾加入：顯示下載按鈕
-    const originalFinish = finishTest;
-    finishTest = function(){
-      originalFinish();
-      document.getElementById("downloadBtn").style.display = "block";
-    }
-  </script>
 </body>
 </html>
+
