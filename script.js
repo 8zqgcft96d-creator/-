@@ -1,112 +1,122 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>五題心理學測驗 + 雷達圖分析</title>
+  <style>
+    :root{ --bg:#f7f8fb; --card:#fff; --accent:#4f46e5; --muted:#6b7280 }
+    body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans TC',"Helvetica Neue",Arial; background:var(--bg); margin:0; padding:20px; color:#111}
+    .container{max-width:900px;margin:20px auto}
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.lead{margin:0 0 16px;color:var(--muted)}
+    .q{margin-bottom:12px}
+    label{display:block;margin-bottom:8px;font-weight:600}
+    .options{display:flex;gap:8px}
+    .options button{flex:1;padding:10px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;cursor:pointer}
+    .options button.selected{background:var(--accent);color:#fff;border-color:transparent}
+    .btn-row{display:flex;gap:8px;margin-top:12px}
+    button.primary{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #e6e9ef;padding:10px;border-radius:8px;cursor:pointer}
+    canvas{max-width:100%;}
+    .result-meta{margin-top:12px;color:var(--muted)}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+    @media(min-width:700px){ .options button{padding:14px} }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+  <div class="w-full max-w-xl bg-white shadow-xl rounded-2xl p-6">
+    <h2 class="text-2xl font-bold text-center mb-4">五題心理學測驗</h2>
+
+    <!-- 問題容器 -->
+    <div id="quiz-container"></div>
+
+    <!-- 導覽按鈕 -->
+    <div class="flex justify-between mt-6">
+      <button id="prevBtn" class="px-4 py-2 bg-gray-300 rounded hidden">上一題</button>
+      <button id="nextBtn" class="px-4 py-2 bg-blue-500 text-white rounded">下一題</button>
+    </div>
+
+    <!-- 結果區 -->
+    <div id="result" class="hidden mt-6"></div>
+  </div>
+
+<script>
 const questions = [
-    { text: "1. 當你遇到一個新的挑戰時，你的第一反應是：",
-      options: [
-        { text: "（A） 馬上跳進去、先試看看", type: "馬" },
-        { text: "（B） 先觀察環境、研究方式", type: "男孩" },
-        { text: "（C） 有點猶豫、怕搞砸、先做部分準備", type: "狐狸" },
-        { text: "（D） 幫助他人，在背後支撐或配合", type: "鼴鼠" }
-      ]
-    },
-    { text: "2. 在朋友情緒低落時，你通常會：",
-      options: [
-        { text: "（A） 鼓勵他們「快起來、一起去做點什麼」", type: "馬" },
-        { text: "（B） 安靜陪伴、傾聽他們説出來", type: "男孩" },
-        { text: "（C） 不太確定怎麼幫比較好，會退縮", type: "狐狸" },
-        { text: "（D） 主動照顧他們、給支持", type: "鼴鼠" }
-      ]
-    },
-    { text: "3. 在思考人生方向時，你偏好：",
-      options: [
-        { text: "（A） 設定目標、立刻實踐", type: "馬" },
-        { text: "（B） 深入思考、分析可能性", type: "男孩" },
-        { text: "（C） 小心翼翼、怕錯、慢慢走", type: "狐狸" },
-        { text: "（D） 與他人分享、互相支持", type: "鼴鼠" }
-      ]
-    },
-    { text: "4. 面對失敗，你最可能的反應是：",
-      options: [
-        { text: "（A） 立刻反彈、再戰一次", type: "馬" },
-        { text: "（B） 自我反省、思考教訓", type: "男孩" },
-        { text: "（C） 沮喪、退縮、怕再犯錯", type: "狐狸" },
-        { text: "（D） 尋求人際支持、一起面對", type: "鼴鼠" }
-      ]
-    },
-    { text: "5. 你最看重的特質是：",
-      options: [
-        { text: "（A） 冒險精神／行動力", type: "馬" },
-        { text: "（B） 思考深度／內在探索", type: "男孩" },
-        { text: "（C） 謹慎／安全感", type: "狐狸" },
-        { text: "（D） 溫暖／支持他人", type: "鼴鼠" }
-      ]
-    }
+  { q: "當你第一次見到某人時，什麼會讓你最先注意到他？", options: ["A. 行為舉止", "B. 言談內容", "C. 外貌形象", "D. 氣質氛圍"] },
+  { q: "如果你要表達某件重要的事情，你通常會選擇？", options: ["A. 先想清楚再說", "B. 直接說出口", "C. 透過文字表達", "D. 看對方狀態再決定"] },
+  { q: "面對壓力時你最可能的反應是？", options: ["A. 找人討論解決方法", "B. 自己先把情緒消化", "C. 做其他事情轉移注意", "D. 假裝沒事並撐過去"] },
+  { q: "在團體中你通常扮演的角色是？", options: ["A. 活動發起者", "B. 氣氛帶動者", "C. 聆聽者與支持者", "D. 觀察者"] },
+  { q: "如果給你一天完全自由的時間，你會選擇？", options: ["A. 外出探索新地點", "B. 和朋友聚會", "C. 在家放鬆休息", "D. 做一些能充電的事如閱讀/散步"] }
 ];
 
-let index = 0;
-let score = { 馬:0, 男孩:0, 狐狸:0, 鼴鼠:0 };
+const resultsText = {
+  A: "### 🐎 你是：馬型人格...（此處省略全文，保留原內容）",
+  B: "### 🦊 你是：狐狸型人格...",
+  C: "### 👦 你是：男孩型人格...",
+  D: "### 🐾 你是：鼴鼠型人格..."
+};
 
-function loadQ() {
-    const q = questions[index];
-    document.getElementById("question").innerText = q.text;
-    document.getElementById("options").innerHTML = q.options
-        .map(o => `<button class="option" onclick="choose('${o.type}')">${o.text}</button>`)
-        .join("");
+let current = 0;
+let answers = [];
+
+function renderQuestion() {
+  const q = questions[current];
+  const container = document.getElementById('quiz-container');
+  
+  container.innerHTML = `
+    <div>
+      <h3 class="text-xl font-semibold mb-4">第 ${current+1} 題：${q.q}</h3>
+      <div class="space-y-3">
+        ${q.options.map((opt,i)=>`
+          <label class='block p-3 border rounded cursor-pointer hover:bg-blue-50'>
+            <input type='radio' name='q${current}' value='${opt[0]}' class='mr-2'>${opt}
+          </label>`).join('')}
+      </div>
+    </div>`;
+
+  document.getElementById("prevBtn").classList.toggle("hidden", current === 0);
+  document.getElementById("nextBtn").innerText = current === questions.length - 1 ? "提交" : "下一題";
 }
-loadQ();
 
-function choose(type) {
-    score[type]++;
-    index++;
-    if(index < questions.length) loadQ();
-    else finish();
+function calculateResult() {
+  const count = {A:0,B:0,C:0,D:0};
+  answers.forEach(a => count[a]++);
+
+  let final = Object.keys(count).sort((a,b)=>count[b]-count[a])[0];
+
+  document.getElementById('result').innerHTML = `
+    <h3 class='text-2xl font-bold mb-4'>你的結果</h3>
+    <p class='whitespace-pre-line'>${resultsText[final]}</p>`;
+
+  document.getElementById('quiz-container').classList.add('hidden');
+  document.getElementById('prevBtn').classList.add('hidden');
+  document.getElementById('nextBtn').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
 }
 
-function finish() {
-    document.getElementById("question-box").style.display = "none";
-    document.getElementById("result").style.display = "block";
+// 下一題按鈕
+nextBtn.onclick = () => {
+  const selected = document.querySelector(`input[name='q${current}']:checked`);
+  if (!selected) return alert("請先選擇一個選項");
 
-    const ctx = document.getElementById("radar").getContext("2d");
-    const radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: ["馬","男孩","狐狸","鼴鼠"],
-            datasets: [{
-                label:"你的特質分佈",
-                data:[score.馬, score.男孩, score.狐狸, score.鼴鼠],
-                borderWidth:2,
-                backgroundColor: 'rgba(54,162,235,0.2)',
-                borderColor:'rgba(54,162,235,1)'
-            }]
-        },
-        options:{
-            scales: { r:{ beginAtZero:true, min:0, max:5 } }
-        }
-    });
+  answers[current] = selected.value;
 
-    // 下載圖表
-    document.getElementById("downloadBtn").onclick = () => {
-        const link = document.createElement('a');
-        link.href = radarChart.toBase64Image();
-        link.download = '心理測驗結果.png';
-        link.click();
-    }
+  if (current === questions.length - 1) return calculateResult();
 
-    // 類型判定
-    let entries = Object.entries(score);
-    entries.sort((a,b)=>b[1]-a[1]);
-    let top = entries.filter(e=>e[1]===entries[0][1]).map(e=>e[0]);
-    document.getElementById("finalType").innerHTML = `<h3>你的類型：${top.join("＋")}</h3>`;
+  current++;
+  renderQuestion();
+};
 
-    // 完整解析
-    const detail = {
-        男孩:`你是【男孩型】：\n關於自己，你還在學著怎麼相信。\n你的樣子...\n(完整解析內容同前)`,
+// 上一題按鈕
+prevBtn.onclick = () => {
+  current--;
+  renderQuestion();
+};
 
-        鼴鼠:`你是【鼴鼠型】：\n你的溫柔，是世界很需要的安慰...\n(完整解析內容同前)`,
+renderQuestion();
+</script>
+</body>
+</html>
 
-        狐狸:`你是【狐狸型】：\n你看得很清楚，只是習慣把心收好...\n(完整解析內容同前)`,
-
-        馬:`你是【馬型】：\n你習慣當那個「載大家走過去」的人...\n(完整解析內容同前)`
-    };
-
-    document.getElementById("analysis").innerHTML =
-        top.map(t => `<h3>${t}型解析</h3><p>${detail[t]}</p>`).join("");
-}
