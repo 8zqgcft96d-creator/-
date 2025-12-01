@@ -1,0 +1,6 @@
+function showPersonalityResult(type) {
+    const data = personalityDescriptions[type];
+
+    document.getElementById("personality-title").textContent = data.title;
+    document.getElementById("personality-text").textContent = data.description;
+}
